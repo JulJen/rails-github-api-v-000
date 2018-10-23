@@ -1,32 +1,19 @@
 class RepositoriesController < ApplicationController
 
   def index
-    user = Faraday.get 'https://api.github.com/user' do |req|
-      req.headers['Authorization'] = 'token ' + session[:token]
-      req.headers['Accept'] = 'application/json'
+    repo = Faraday.get("https://api.github.com/user/repos") do |req|
+      req.headers = {'Accept': 'application/json', 'Authorization': "token #{session[:token]}"}
     end
-    @user_data = JSON.parse(user.body)
-
-    response = Faraday.get 'https://api.github.com/user/repos' do |req|
-      req.headers['Authorization'] = 'token ' + session[:token]
-      req.headers['Accept'] = 'application/json'
-    end
-    @repos = JSON.parse(response.body)
+    @repos = JSON.parse(repo.body)
   end
 
   def create
-    response = Faraday.post 'https://api.github.com/user/repos' do |req|
-      req.body = { 'name': params[:name] }.to_json
-      req.headers['Authorization'] = 'token ' + session[:token]
-      req.headers['Accept'] = 'application/json'
+    repo_name = {'name': params[:name]}.to_json
+    new_repo = Faraday.post("https://api.github.com/user/repos") do |req|
+      req.body = {'name': "#{params[:name]}"}.to_json
+      req.headers = {'Accept': 'application/json', 'Authorization': 'token #{session[:token]}'}
     end
-    details = JSON.parse(response.body)
-    if ! response.success?
-      @errors = details["message"] if ! response.success?
-      render :index
-    else
-      redirect_to '/'
-    end
+    redirect_to root_path
   end
 
 end
