@@ -1,5 +1,5 @@
 class RepositoriesController < ApplicationController
-  
+
   def index
     user = Faraday.get 'https://api.github.com/user' do |req|
       req.headers['Authorization'] = 'token ' + session[:token]
@@ -25,7 +25,7 @@ class RepositoriesController < ApplicationController
       @errors = details["message"] if ! response.success?
       render :index
     else
-      redirect_to '/' 
+      redirect_to '/'
     end
   end
 
