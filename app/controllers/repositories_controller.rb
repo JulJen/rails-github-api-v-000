@@ -16,7 +16,6 @@ class RepositoriesController < ApplicationController
   		req.headers['Accept'] = "application/json"
   	end
   	redirect_to root_path
-=======
   	end
 
   	@repos = JSON.parse(resp.body)
