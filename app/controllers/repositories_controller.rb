@@ -1,32 +1,16 @@
 class RepositoriesController < ApplicationController
 
   def index
-    user = Faraday.get 'https://api.github.com/user' do |req|
-      req.headers['Authorization'] = 'token ' + session[:token]
-      req.headers['Accept'] = 'application/json'
-    end
-    @user_data = JSON.parse(user.body)
+    access_token = session[:token]
+    resp = Faraday.get("https://api.github.com/user?access_token=#{access_token}")
+    body = JSON.parse(resp.body)
+    @username = body["login"]
 
-    response = Faraday.get 'https://api.github.com/user/repos' do |req|
-      req.headers['Authorization'] = 'token ' + session[:token]
-      req.headers['Accept'] = 'application/json'
-    end
-    @repos = JSON.parse(response.body)
-  end
 
-  def create
-    response = Faraday.post 'https://api.github.com/user/repos' do |req|
-      req.body = { 'name': params[:name] }.to_json
-      req.headers['Authorization'] = 'token ' + session[:token]
-      req.headers['Accept'] = 'application/json'
-    end
-    details = JSON.parse(response.body)
-    if ! response.success?
-      @errors = details["message"] if ! response.success?
-      render :index
-    else
-      redirect_to '/'
-    end
+    repos_resp = Faraday.get("https://api.github.com/user/repos?access_token=#{access_token}")
+    @repos = JSON.parse(repos_resp.body)
+    #binding.pry
+    render 'index'
   end
 
 end
